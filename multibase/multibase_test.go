@@ -30,7 +30,7 @@ func TestRoundtrip(t *testing.T) {
 
 	for _, tc := range tests {
 		encoded := tc.enc.Encode(data)
-		if rune(encoded[0]) != tc.enc.Code {
+		if rune(encoded[0]) != tc.enc.code {
 			t.Fatalf("%s: missing prefix", tc.name)
 		}
 		decoded, err := Decode(encoded)

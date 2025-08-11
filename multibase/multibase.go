@@ -11,11 +11,16 @@ import (
 	"unicode/utf8"
 )
 
+var (
+	ErrEmptyString                = errors.New("empty string")
+	ErrUnsupportedMultibasePrefix = errors.New("unsupported multibase prefix")
+)
+
 // Encoding represents a multibase encoding. It knows how to encode and decode
 // data and the corresponding multibase prefix code.
 type Encoding struct {
-	// Code is the multibase prefix identifying this encoding.
-	Code rune
+	// code is the multibase prefix identifying this encoding.
+	code rune
 
 	encode func([]byte) string
 	decode func(string) ([]byte, error)
@@ -23,7 +28,7 @@ type Encoding struct {
 
 // Encode encodes the given byte slice and prepends the multibase prefix.
 func (e Encoding) Encode(src []byte) string {
-	return string(e.Code) + e.encode(src)
+	return string(e.code) + e.encode(src)
 }
 
 // Decode decodes the given string using the encoding. The input string should
@@ -201,46 +206,55 @@ func decodeBase36Upper(s string) ([]byte, error) { return decodeBigInt(strings.T
 
 // Exported encodings
 var (
-	Base2          = Encoding{Code: '0', encode: encodeBase2, decode: decodeBase2}
-	Base8          = Encoding{Code: '7', encode: encodeBase8, decode: decodeBase8}
-	Base10         = Encoding{Code: '9', encode: encodeBase10, decode: decodeBase10}
-	Base16         = Encoding{Code: 'f', encode: encodeBase16Lower, decode: decodeBase16}
-	Base16Upper    = Encoding{Code: 'F', encode: encodeBase16Upper, decode: decodeBase16}
-	Base32         = Encoding{Code: 'b', encode: encodeBase32Lower, decode: decodeBase32Lower}
-	Base32Upper    = Encoding{Code: 'B', encode: encodeBase32Upper, decode: decodeBase32Upper}
-	Base32Hex      = Encoding{Code: 'v', encode: encodeBase32HexLower, decode: decodeBase32HexLower}
-	Base32HexUpper = Encoding{Code: 'V', encode: encodeBase32HexUpper, decode: decodeBase32HexUpper}
-	Base36         = Encoding{Code: 'k', encode: encodeBase36Lower, decode: decodeBase36Lower}
-	Base36Upper    = Encoding{Code: 'K', encode: encodeBase36Upper, decode: decodeBase36Upper}
-	Base58BTC      = Encoding{Code: 'z', encode: encodeBase58BTC, decode: decodeBase58BTC}
-	Base64URL      = Encoding{Code: 'u', encode: encodeBase64URL, decode: decodeBase64URL}
+	Base2          = Encoding{code: '0', encode: encodeBase2, decode: decodeBase2}
+	Base8          = Encoding{code: '7', encode: encodeBase8, decode: decodeBase8}
+	Base10         = Encoding{code: '9', encode: encodeBase10, decode: decodeBase10}
+	Base16         = Encoding{code: 'f', encode: encodeBase16Lower, decode: decodeBase16}
+	Base16Upper    = Encoding{code: 'F', encode: encodeBase16Upper, decode: decodeBase16}
+	Base32         = Encoding{code: 'b', encode: encodeBase32Lower, decode: decodeBase32Lower}
+	Base32Upper    = Encoding{code: 'B', encode: encodeBase32Upper, decode: decodeBase32Upper}
+	Base32Hex      = Encoding{code: 'v', encode: encodeBase32HexLower, decode: decodeBase32HexLower}
+	Base32HexUpper = Encoding{code: 'V', encode: encodeBase32HexUpper, decode: decodeBase32HexUpper}
+	Base36         = Encoding{code: 'k', encode: encodeBase36Lower, decode: decodeBase36Lower}
+	Base36Upper    = Encoding{code: 'K', encode: encodeBase36Upper, decode: decodeBase36Upper}
+	Base58BTC      = Encoding{code: 'z', encode: encodeBase58BTC, decode: decodeBase58BTC}
+	Base64URL      = Encoding{code: 'u', encode: encodeBase64URL, decode: decodeBase64URL}
 )
-
-var encodingMap = map[rune]Encoding{
-	Base2.Code:          Base2,
-	Base8.Code:          Base8,
-	Base10.Code:         Base10,
-	Base16.Code:         Base16,
-	Base16Upper.Code:    Base16Upper,
-	Base32.Code:         Base32,
-	Base32Upper.Code:    Base32Upper,
-	Base32Hex.Code:      Base32Hex,
-	Base32HexUpper.Code: Base32HexUpper,
-	Base36.Code:         Base36,
-	Base36Upper.Code:    Base36Upper,
-	Base58BTC.Code:      Base58BTC,
-	Base64URL.Code:      Base64URL,
-}
 
 // Decode decodes a multibase encoded string.
 func Decode(s string) ([]byte, error) {
 	if len(s) == 0 {
-		return nil, fmt.Errorf("cannot decode multibase for empty string")
+		return nil, ErrEmptyString
 	}
 	r, size := utf8.DecodeRuneInString(s)
-	enc, ok := encodingMap[r]
-	if !ok {
-		return nil, fmt.Errorf("unsupported multibase prefix %q", r)
+	switch r {
+	case Base2.code:
+		return Base2.decode(s[size:])
+	case Base8.code:
+		return Base8.decode(s[size:])
+	case Base10.code:
+		return Base10.decode(s[size:])
+	case Base16.code:
+		return Base16.decode(s[size:])
+	case Base16Upper.code:
+		return Base16Upper.decode(s[size:])
+	case Base32.code:
+		return Base32.decode(s[size:])
+	case Base32Upper.code:
+		return Base32Upper.decode(s[size:])
+	case Base32Hex.code:
+		return Base32Hex.decode(s[size:])
+	case Base32HexUpper.code:
+		return Base32HexUpper.decode(s[size:])
+	case Base36.code:
+		return Base36.decode(s[size:])
+	case Base36Upper.code:
+		return Base36Upper.decode(s[size:])
+	case Base58BTC.code:
+		return Base58BTC.decode(s[size:])
+	case Base64URL.code:
+		return Base64URL.decode(s[size:])
+	default:
+		return nil, fmt.Errorf("%w: %q", ErrUnsupportedMultibasePrefix, r)
 	}
-	return enc.decode(s[size:])
 }
