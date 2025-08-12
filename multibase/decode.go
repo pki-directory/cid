@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	ErrEmptyString         = errors.New("empty string")
-	ErrUnsupportedEncoding = errors.New("unsupported multibase encoding")
+	ErrEmptyString         = errors.New("multibase: empty string")
+	ErrUnsupportedEncoding = errors.New("multibase: unsupported encoding")
 )
 
 // Decode decodes a multibase encoded string.
