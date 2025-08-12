@@ -18,8 +18,6 @@ const (
 )
 
 var (
-	base16Encoding         = &hexEncoder{upper: false}
-	base16UpperEncoding    = &hexEncoder{upper: true}
 	base32Encoding         = base32.NewEncoding("abcdefghijklmnopqrstuvwxyz234567").WithPadding(base32.NoPadding)
 	base32UpperEncoding    = base32.NewEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567").WithPadding(base32.NoPadding)
 	base32HexEncoding      = base32.NewEncoding("0123456789abcdefghijklmnopqrstuv").WithPadding(base32.NoPadding)

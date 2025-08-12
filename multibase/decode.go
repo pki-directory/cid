@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	ErrEmptyString                  = errors.New("empty string")
-	ErrUnsupportedMultibaseEncoding = errors.New("unsupported multibase encoding")
+	ErrEmptyString         = errors.New("empty string")
+	ErrUnsupportedEncoding = errors.New("unsupported multibase encoding")
 )
 
 // Decode decodes a multibase encoded string.
@@ -33,6 +33,6 @@ func Decode(s string) ([]byte, error) {
 	case prefixBase64URL:
 		return base64URLEncoding.DecodeString(s[1:])
 	default:
-		return nil, fmt.Errorf("%w: %q", ErrUnsupportedMultibaseEncoding, s[0])
+		return nil, fmt.Errorf("%w: %q", ErrUnsupportedEncoding, s[0])
 	}
 }
